@@ -43,7 +43,8 @@ export const GameServerProvider: React.FC<React.PropsWithChildren<{}>> = ({
       return [...prevVehicles, vehicle];
     });
   };
-
+  
+  // Infinite Game Loop
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:5000/ws");
 

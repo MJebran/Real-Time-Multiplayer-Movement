@@ -26,5 +26,3 @@ export const moveVehicle = (vehicle: PlayerVehicle): PlayerVehicle => {
 
   return { ...vehicle, x: newX, y: newY, angle: newAngle };
 };
-
-
