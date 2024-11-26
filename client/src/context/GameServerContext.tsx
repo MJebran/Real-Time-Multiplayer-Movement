@@ -32,10 +32,11 @@ export const GameServerProvider: React.FC<React.PropsWithChildren<{}>> = ({
                 [action]: !vehicle.movementFlags[action],
               },
             }
-          : vehicle
-      )
-    );
-  };
+          : vehicle  
+          
+        )
+      );
+    };
 
   const registerVehicle = (vehicle: PlayerVehicle) => {
     setVehicles((prevVehicles) => {
@@ -45,19 +46,19 @@ export const GameServerProvider: React.FC<React.PropsWithChildren<{}>> = ({
   };
   
   // Infinite Game Loop
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:5000/ws");
+  // useEffect(() => {
+  //   const ws = new WebSocket("ws://localhost:5000/ws");
 
-    const interval = setInterval(() => {
-      const gameState = { vehicles };
-      ws.send(JSON.stringify(gameState));
-    }, 100);
+  //   const interval = setInterval(() => {
+  //     const gameState = { vehicles };
+  //     ws.send(JSON.stringify(gameState));
+  //   }, 100);
 
-    return () => {
-      clearInterval(interval);
-      ws.close();
-    };
-  }, [vehicles]);
+  //   return () => {
+  //     clearInterval(interval);
+  //     ws.close();
+  //   };
+  // }, [vehicles]);
 
   useEffect(() => {
     const interval = setInterval(() => {

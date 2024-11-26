@@ -6,13 +6,13 @@ export const SvjRocketOneComponent = () => {
         id="Layer_1"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 64 64"
-        enable-background="new 0 0 64 64"
+        enableBackground="new 0 0 64 64"
       >
         <g>
           <path
             fill="#F9EBB2"
             d="M32,2c6,4,14,14,14,30c0,4.401-0.539,8.531-1.221,12H19.221C18.539,40.531,18,36.401,18,32C18,16,26,6,32,2
-		z"
+          z"
           />
           <path
             fill="#F9EBB2"
