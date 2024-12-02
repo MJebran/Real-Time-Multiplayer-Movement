@@ -1,11 +1,11 @@
-import React from 'react';
-import { GameServerProvider } from '../src/context/GameServerContext';
-import Vehicle from '../src/Components/Vehicle';
-import PlayerControls from '../src/Components/playerControls';
-import { useGameServer } from '../src/context/GameServerContext';
+import React from "react";
+import { GameServerProvider, useGameServer } from "../src/context/GameServerContext";
+import Vehicle from "../src/Components/Vehicle";
+import PlayerControls from "../src/Components/playerControls";
 
 const Game = () => {
   const { vehicles } = useGameServer();
+
   return (
     <>
       {vehicles.map((vehicle) => (
@@ -22,8 +22,8 @@ const App: React.FC = () => {
         style={{
           width: "100vw",
           height: "100vh",
-          background: "#282c34",
           position: "relative",
+          background: "#282c34",
         }}
       >
         <Game />

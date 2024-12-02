@@ -11,8 +11,8 @@ const PlayerControls: React.FC<{
     registerVehicle({
       id: vehicleId,
       state: "idle",
-      x: 200,
-      y: 200,
+      x: Math.random() * 500,
+      y: Math.random() * 500,
       angle: 0,
       movementFlags: {
         turningLeft: false,
@@ -63,7 +63,7 @@ const PlayerControls: React.FC<{
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [vehicleId, controls, updateVehicle, registerVehicle]);
+  }, [vehicleId, controls, registerVehicle, updateVehicle]);
 
   return null;
 };

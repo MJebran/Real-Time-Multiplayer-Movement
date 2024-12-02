@@ -21,6 +21,7 @@ export const GameServerProvider: React.FC<React.PropsWithChildren<{}>> = ({
 }) => {
   const [vehicles, setVehicles] = useState<PlayerVehicle[]>([]);
 
+  // Update movement flags for a specific vehicle
   const updateVehicle = (id: number, action: MovementAction) => {
     setVehicles((prevVehicles) =>
       prevVehicles.map((vehicle) =>
@@ -32,34 +33,20 @@ export const GameServerProvider: React.FC<React.PropsWithChildren<{}>> = ({
                 [action]: !vehicle.movementFlags[action],
               },
             }
-          : vehicle  
-          
-        )
-      );
-    };
+          : vehicle
+      )
+    );
+  };
 
+  // Register a new vehicle if it doesn't exist
   const registerVehicle = (vehicle: PlayerVehicle) => {
     setVehicles((prevVehicles) => {
       if (prevVehicles.some((v) => v.id === vehicle.id)) return prevVehicles;
       return [...prevVehicles, vehicle];
     });
   };
-  
-  // Infinite Game Loop
-  // useEffect(() => {
-  //   const ws = new WebSocket("ws://localhost:5000/ws");
 
-  //   const interval = setInterval(() => {
-  //     const gameState = { vehicles };
-  //     ws.send(JSON.stringify(gameState));
-  //   }, 100);
-
-  //   return () => {
-  //     clearInterval(interval);
-  //     ws.close();
-  //   };
-  // }, [vehicles]);
-
+  // Infinite game loop to calculate vehicle movement
   useEffect(() => {
     const interval = setInterval(() => {
       setVehicles((prevVehicles) =>
