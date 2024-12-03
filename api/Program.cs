@@ -93,5 +93,5 @@ async Task HandleWebSocket(WebSocket currentSocket)
         }
     }
 }
-
+app.MapGet("/", () => "Welcome to Real Time Multiplayer Game Server");
 app.Run();
