@@ -20,11 +20,7 @@ app.Use(async (context, next) =>
         {
             using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
             Console.WriteLine("WebSocket Connected");
-
-            clients.Add(webSocket);
             await HandleWebSocket(webSocket);
-
-            Console.WriteLine("WebSocket Disconnected");
         }
         else
         {
@@ -37,61 +33,52 @@ app.Use(async (context, next) =>
     }
 });
 
+
 async Task HandleWebSocket(WebSocket currentSocket)
 {
     var buffer = new byte[1024 * 4];
     while (currentSocket.State == WebSocketState.Open)
     {
-        var receiveResult = await currentSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-        if (receiveResult.MessageType == WebSocketMessageType.Text)
+        try
         {
-            var message = System.Text.Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
-            Console.WriteLine($"Received: {message}");
-
-            var jsonMessage = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
-            if (jsonMessage == null) continue;
-
-            if (jsonMessage["type"]?.ToString() == "registerVehicle")
+            var receiveResult = await currentSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            if (receiveResult.MessageType == WebSocketMessageType.Text)
             {
-                var vehicle = jsonMessage["vehicle"];
-                if (vehicle is JsonElement element)
+                var message = System.Text.Encoding.UTF8.GetString(buffer, 0, receiveResult.Count);
+                Console.WriteLine($"Received: {message}");
+
+                // Process message and broadcast state
+                var gameStateMessage = JsonSerializer.Serialize(new { type = "gameState", vehicles = vehicles.Values });
+                foreach (var client in clients)
                 {
-                    var vehicleId = element.GetProperty("id").GetInt32();
-                    vehicles[vehicleId] = vehicle;
+                    if (client.State == WebSocketState.Open)
+                    {
+                        await client.SendAsync(
+                            new ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(gameStateMessage)),
+                            WebSocketMessageType.Text,
+                            true,
+                            CancellationToken.None
+                        );
+                    }
                 }
             }
-            else if (jsonMessage["type"]?.ToString() == "updateVehicle")
+            else if (receiveResult.MessageType == WebSocketMessageType.Close)
             {
-                var vehicleId = (int)jsonMessage["id"];
-                vehicles.TryGetValue(vehicleId, out var vehicle);
-
-                if (vehicle is JsonElement element)
-                {
-                    var updatedFlags = element.GetProperty("movementFlags");
-                    vehicles[vehicleId] = updatedFlags;
-                }
-            }
-
-            var gameStateMessage = JsonSerializer.Serialize(new { type = "gameState", vehicles = vehicles.Values });
-            foreach (var client in clients)
-            {
-                if (client.State == WebSocketState.Open)
-                {
-                    await client.SendAsync(
-                        new ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(gameStateMessage)),
-                        WebSocketMessageType.Text,
-                        true,
-                        CancellationToken.None
-                    );
-                }
+                Console.WriteLine("WebSocket Closed");
+                clients.TryTake(out _);
+                await currentSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
             }
         }
-        else if (receiveResult.MessageType == WebSocketMessageType.Close)
+        catch (WebSocketException ex)
         {
-            clients.TryTake(out _);
-            await currentSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closed by client", CancellationToken.None);
+            Console.WriteLine($"WebSocket error: {ex.Message}");
+            break;
         }
     }
+
+    // Remove the client when the connection is closed
+    clients.TryTake(out _);
 }
-app.MapGet("/", () => "Welcome to Real Time Multiplayer Game Server");
+
+
 app.Run();
